@@ -32,7 +32,12 @@ jobs:
         if: failure()
         with:
           severity: error
-          details: Build failed
+          username: rml
+          color: '#ff00aa'          
+          description: Failure
+          details: 'build failed.'
+          footer: Automated message
+          text: Build
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Run tests
         run: npm run test
@@ -60,8 +65,13 @@ jobs:
         if: success()
         with:
           severity: info
-          details: Deploy successful
-          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}           
+          username: rml
+          color: '#ff00aa'          
+          description: Success
+          details: 'deployed on render'
+          footer: Automated message
+          text: Deploy
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
