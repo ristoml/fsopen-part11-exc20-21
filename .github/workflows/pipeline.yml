@@ -1,0 +1,75 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  simple_deployment_pipeline:
+    runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#SKIP') }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Install dependencies for backend
+        run: npm install
+      - name: Install dependencies for frontend
+        run: npm install
+        working-directory: client      
+      - name: Check style
+        run: npm run lint
+      - name: Run Build on frontend
+        run: npm run build
+        working-directory: client
+      - name: Build failed
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+          severity: error
+          details: Build failed
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Run tests
+        run: npm run test
+      - name: Run API in the background      
+        run: npm run start:test &                    
+        env: 
+          MONGODB_URI: ${{ secrets.MONGODB_URI}}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI}}
+          SECRET: ${{ secrets.SECRET }}
+          PORT: ${{ secrets.PORT }}        
+      - name: e2e tests
+        uses: cypress-io/github-action@v5
+        with:
+          working-directory: client
+          command: npm run test:e2e
+          start: npm run start-prod
+          wait-on: http://localhost:3000            
+      - name: Render Deploy Action
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.MY_RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.MY_RENDER_API_KEY }}
+      - name: Deploy successful
+        uses: rjstone/discord-webhook-notify@v1
+        if: success()
+        with:
+          severity: info
+          details: Deploy successful
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}           
+  tag_release:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-20.04
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.64.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch

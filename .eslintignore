@@ -1,0 +1,8 @@
+/client/cypress.config.js
+/client/cypress
+/tests
+/client/src/components/Blog.test.js
+/client/src/components/BlogForm.test.js
+/client/node_modules
+/client/build
+/client/cypress.config.js
