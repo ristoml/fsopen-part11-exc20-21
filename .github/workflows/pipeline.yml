@@ -41,6 +41,11 @@ jobs:
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Run tests
         run: npm run test
+        env: 
+          MONGODB_URI: ${{ secrets.MONGODB_URI}}
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI}}
+          SECRET: ${{ secrets.SECRET }}
+          PORT: ${{ secrets.PORT }}        
       - name: Run API in the background      
         run: npm run start:test &                    
         env: 
