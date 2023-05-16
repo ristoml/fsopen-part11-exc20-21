@@ -5,4 +5,6 @@ npm install
 cd client
 npm install
 npm run build
-mv build/* ../build
+cd ..
+mkdir build
+mv client/build/* build
