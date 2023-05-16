@@ -12,4 +12,4 @@ npm install
 
 npm run build
 
-mv -r build ../
+mv build ../

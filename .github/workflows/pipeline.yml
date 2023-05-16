@@ -32,12 +32,12 @@ jobs:
         if: failure()
         with:
           severity: error
-          username: rml
+          username: GitHub
           color: '#ff00aa'          
           description: Failure
           details: 'build failed.'
           footer: Automated message
-          text: Build
+          text: 
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Run tests
         run: npm run test
@@ -65,12 +65,12 @@ jobs:
         if: success()
         with:
           severity: info
-          username: rml
-          color: '#ff00aa'          
+          username: GitHub
+          color: '#00ff00'          
           description: Success
           details: 'deployed on render'
           footer: Automated message
-          text: Deploy
+          text: 
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   tag_release:
     needs: [simple_deployment_pipeline]
